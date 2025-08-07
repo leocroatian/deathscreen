@@ -32,6 +32,7 @@ local function respawnCharacter(adminInf)
         Wait(500)
         exports.spawnmanager:forceRespawn()
         SendNUIMessage({ type = 'hide' })
+        SetNuiFocus(false, false)
         Wait(500)
 
         exports.spawnmanager:setAutoSpawn(false)
@@ -48,6 +49,7 @@ local function respawnCharacter(adminInf)
         print(json.encode(spawnPoint))
 
         SendNUIMessage({ type = 'hide' })
+        SetNuiFocus(false, false)
         Wait(100)
 
         NetworkResurrectLocalPlayer(spawnPoint.coords.x, spawnPoint.coords.y, spawnPoint.coords.z, spawnPoint.coords.w, 0, false)
@@ -73,6 +75,7 @@ RegisterNetEvent('SpawnHandler:Adrevved', function (adminInf)
     local heading = GetEntityHeading(PlayerPedId())
 
     SendNUIMessage({ type = 'hide' })
+    SetNuiFocus(false, false)
     Wait(100)
     canRespawn = false
     playerDead = false
@@ -96,12 +99,14 @@ end)
 
 RegisterNetEvent('SpawnHandler:RespawnHandle', function(respawnTimer)
     SendNUIMessage({ type = "death", timer = respawnTimer })
+    SetNuiFocus(true, false)
 
     while IsEntityDead(PlayerPedId()) do
         Wait(1000)
     end
 
     SendNUIMessage({ type = 'hide' })
+    SetNuiFocus(false, false)
 end)
 
 local function handleDeath()
