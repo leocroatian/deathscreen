@@ -2,6 +2,7 @@ math.randomseed(os.time()) -- ensure that the math.random functions...
 
 -- webhook for your discord logs.
 local webhook = "https://discord.com/api/webhooks/1402944760662196295/QCLhg9qyp5EIDubhvMf_zsxXA2kM64trEbPGIuwiwXbP6HWE8Ho1UYxPB2ZHqCY8YaFd"
+local webhookLogging = false
 
 -- get a target players discord id.
 local function getDiscordID(playerId)
@@ -11,12 +12,12 @@ end
 
 -- log the action using discord webhooking.
 local function LogAction(adminInfo, target, action)
-    print(adminInfo[1], adminInfo[2])
-
+    if not webhookLogging then
+        return
+    end
+    
     local adminDiscordId = getDiscordID(tonumber(adminInfo[2]))
     local targetDiscordId = getDiscordID(target)
-
-    print(adminDiscordId, targetDiscordId)
     
     local embed = {
         {
@@ -43,9 +44,9 @@ RegisterNetEvent('SpawnHandler:AdrevPlayer', function(serverId)
     local src = source
     local adminName = GetPlayerName(src)
 
-    -- if not IsPlayerAceAllowed(src, DeathScreen.AdminAce) then
-    --     return
-    -- end
+    if not IsPlayerAceAllowed(src, DeathScreen.AdminAce) then
+        return
+    end
 
     local targetId = tonumber(serverId)
     if not targetId then
@@ -71,9 +72,9 @@ RegisterNetEvent('SpawnHandler:AdresPlayer', function(serverId)
     local src = source
     local adminName = GetPlayerName(src)
 
-    -- if not IsPlayerAceAllowed(src, DeathScreen.AdminAce) then
-    --     return
-    -- end
+    if not IsPlayerAceAllowed(src, DeathScreen.AdminAce) then
+        return
+    end
 
     -- Convert to number in case it's a string
     local targetId = tonumber(serverId)
