@@ -3,7 +3,8 @@ DeathScreen = {
     DonatorRespawnTimer = 60,
     AdminAce = "spawnhandler.admin",
     DonatorAce = "spawnhandler.lifealert",
-    DefaultSpawns = false,
+    DefaultSpawns = true,
+    BlurScreen = true,
 }
 
 DeathScreen.SpawnPoints = {

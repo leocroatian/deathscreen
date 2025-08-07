@@ -1,4 +1,4 @@
-/* Ensure HTML and body are fully transparent */
+/* Basic reset and full screen layout */
 html, body {
   margin: 0;
   padding: 0;
@@ -6,9 +6,11 @@ html, body {
   height: 100%;
   overflow: hidden;
   background: transparent !important;
+
+  pointer-events: none;
 }
 
-/* Fullscreen blur overlay */
+/* Wrapper for the UI (death screen) */
 #app {
   position: fixed;
   top: 0;
@@ -21,25 +23,23 @@ html, body {
   justify-content: center;
   align-items: center;
 
-  background-color: transparent; /* transparent */
-
+  background-color: transparent;
   opacity: 0;
   visibility: hidden;
   transition: 
-    opacity 2s ease,
-    visibility 2s ease;
-  pointer-events: none;
-  user-select: none;
-  z-index: 9999;
+    opacity 1.5s ease,
+    visibility 1.5s ease;
+
+  z-index: 10;
 }
 
+/* When active, show the screen (but still non-blocking) */
 #app.active {
   opacity: 1;
   visibility: visible;
-  pointer-events: auto;
 }
 
-/* Title */
+/* Text styling for title */
 #app h1 {
   font-family: 'Quantico', sans-serif;
   font-weight: 700;
@@ -48,7 +48,7 @@ html, body {
   margin: 0;
 }
 
-/* Timer */
+/* Timer text below the title */
 #timer {
   font-family: 'Quantico', sans-serif;
   font-weight: 500;

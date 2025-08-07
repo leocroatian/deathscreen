@@ -1,5 +1,5 @@
 local canRespawn = false
-local playerDead = false
+LocalPlayer.state:set("dead", false, true)
 
 RegisterNUICallback('canRespawn', function(data, cb)
     canRespawn = data.allowRespawn
@@ -14,6 +14,13 @@ local function notify(title, description, type, icon, duration)
         duration = duration or 3000
     })
 end
+local function disableNUI()
+    if DeathScreen.BlurScreen then
+        TriggerScreenblurFadeOut(2000)
+    end
+    SendNUIMessage({ type = 'hide' })
+    SetNuiFocus(false, false)
+end
 
 RegisterNetEvent('SpawnHandler:NoPerm', function(type)
     notify('Permission Error', 'You do not have permission to do this.', 'error')
@@ -27,12 +34,12 @@ end)
 local function respawnCharacter(adminInf)
     if DeathScreen.DefaultSpawns then
         canRespawn = false
-        playerDead = false
+        LocalPlayer.state:set("dead", false, true)
         exports.spawnmanager:setAutoSpawn(true)
         Wait(500)
         exports.spawnmanager:forceRespawn()
-        SendNUIMessage({ type = 'hide' })
-        SetNuiFocus(false, false)
+        SetPlayerInvincible(cache.playerId, false)
+        disableNUI()
         Wait(500)
 
         exports.spawnmanager:setAutoSpawn(false)
@@ -44,15 +51,21 @@ local function respawnCharacter(adminInf)
         end
     else
         canRespawn = false
-        playerDead = false
+        LocalPlayer.state:set("dead", false, true)
         local spawnPoint = DeathScreen.SpawnPoints[math.random(1, #DeathScreen.SpawnPoints)]
         print(json.encode(spawnPoint))
 
-        SendNUIMessage({ type = 'hide' })
-        SetNuiFocus(false, false)
-        Wait(100)
+        disableNUI()
+        Wait(2000)
 
-        NetworkResurrectLocalPlayer(spawnPoint.coords.x, spawnPoint.coords.y, spawnPoint.coords.z, spawnPoint.coords.w, 0, false)
+        SetEntityCoordsNoOffset(cache.ped, spawnPoint.coords.x, spawnPoint.coords.y, spawnPoint.coords.z, false, false, false, true)
+        NetworkResurrectLocalPlayer(spawnPoint.coords.x, spawnPoint.coords.y, spawnPoint.coords.z, spawnPoint.coords.w, true, false)
+
+        SetPlayerInvincible(cache.playerId, false)
+
+        TriggerEvent("playerSpawned", spawnPoint.coords.x, spawnPoint.coords.y, spawnPoint.coords.z, spawnPoint.coords.w)
+        ClearPedBloodDamage(cache.ped)
+        ResetTimers()
 
         if adminInf then
             notify('Spawn Manager', ('You have been respawned by %s at %s'):format(adminInf, spawnPoint.name), 'success')
@@ -74,12 +87,12 @@ RegisterNetEvent('SpawnHandler:Adrevved', function (adminInf)
     local coords = GetEntityCoords(PlayerPedId())
     local heading = GetEntityHeading(PlayerPedId())
 
-    SendNUIMessage({ type = 'hide' })
-    SetNuiFocus(false, false)
+    disableNUI()
     Wait(100)
     canRespawn = false
-    playerDead = false
+    LocalPlayer.state:set("dead", false, true)
 
+    SetPlayerInvincible(cache.playerId, false)
     NetworkResurrectLocalPlayer(coords.x, coords.y, coords.z, heading, 0, false)
 
     notify('Spawn Manager', ('You have been revived by %s'):format(adminInf), 'success')
@@ -98,22 +111,23 @@ RegisterNetEvent('SpawnHandler:Respawned', function (adminInf)
 end)
 
 RegisterNetEvent('SpawnHandler:RespawnHandle', function(respawnTimer)
+    if DeathScreen.BlurScreen then
+        TriggerScreenblurFadeIn(2000)
+    end
     SendNUIMessage({ type = "death", timer = respawnTimer })
-    SetNuiFocus(true, false)
+    SetNuiFocus(false, false)
 
     while IsEntityDead(PlayerPedId()) do
         Wait(1000)
     end
-
-    SendNUIMessage({ type = 'hide' })
-    SetNuiFocus(false, false)
+    disableNUI()
 end)
 
 local function handleDeath()
-    if not playerDead then
+    if not LocalPlayer.state.dead then
         exports.spawnmanager:setAutoSpawn(false)
         TriggerServerEvent('SpawnHandler:PlayerDied')
-        playerDead = not playerDead
+        LocalPlayer.state:set("dead", true, true)
     end
 end
 
@@ -122,6 +136,8 @@ CreateThread(function()
         local isDead = IsEntityDead(PlayerPedId())
         if isDead then
             handleDeath()
+            SetPlayerInvincible(cache.playerId, true)
+            SetEntityHealth(PlayerPedId(), 1)
         end
         Wait(1000)
     end
@@ -152,7 +168,7 @@ RegisterCommand("respawn", function(source, args, rawCommand)
     end
 
     canRespawn = false
-    playerDead = false
+    LocalPlayer.state:set("dead", false, true)
 end, false)
 
 RegisterCommand('adrev', function(_, args, _)
