@@ -5,22 +5,6 @@ RegisterNUICallback('canRespawn', function(data, cb)
     canRespawn = data.allowRespawn
 end)
 
-RegisterNetEvent('SpawnHandler:NoPerm', function(type)
-    lib.notify({
-        title = 'Permission Error',
-        description  = 'You do not have permission to use ' .. type,
-        type = 'error'
-    })
-end)
-
-RegisterNetEvent('SpawnHandler:InvalidID', function(type)
-    lib.notify({
-        title = 'Spawn Handler Error',
-        description  = 'Invalid Server ID',
-        type = 'error'
-    })
-end)
-
 local function notify(title, description, type, icon, duration)
     lib.notify({
         title = title,
@@ -30,6 +14,14 @@ local function notify(title, description, type, icon, duration)
         duration = duration or 3000
     })
 end
+
+RegisterNetEvent('SpawnHandler:NoPerm', function(type)
+    notify('Permission Error', 'You do not have permission to do this.', 'error')
+end)
+
+RegisterNetEvent('SpawnHandler:InvalidID', function(type)
+    notify('Spawn Handler Error', 'Invalid Server ID', 'error')
+end)
 
 -- used for respawning the character depending on if they 
 local function respawnCharacter(adminInf)
