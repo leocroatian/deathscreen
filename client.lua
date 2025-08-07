@@ -122,6 +122,12 @@ CreateThread(function()
     end
 end)
 
+AddEventHandler('onClientMapStart', function()
+    exports.spawnmanager.spawnPlayer();
+    Wait(1500);
+    exports.spawnmanager.setAutoSpawn(false);
+end)
+
 RegisterCommand("respawn", function(source, args, rawCommand)
     local isDead = IsEntityDead(PlayerPedId())
 
